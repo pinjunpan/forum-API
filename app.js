@@ -8,6 +8,8 @@ const session = require('express-session')
 const passport = require('./config/passport')
 const handlebarsHelpers = require('./helpers/handlebars-helpers')
 
+require('dotenv').config()
+
 const { getUser } = require('./helpers/auth-helpers')
 
 const { pages, apis } = require('./routes')
