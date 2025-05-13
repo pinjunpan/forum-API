@@ -1,5 +1,10 @@
 'use strict'
 const faker = require('faker')
+const axios = require('axios')
+
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config()
+}
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -7,13 +12,26 @@ module.exports = {
       'SELECT id FROM Categories;',
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
+
+    const { data } = await axios.get('https://api.pexels.com/v1/search', {
+      headers: {
+        Authorization: process.env.PEXELS_API_KEY
+      },
+      params: {
+        query: 'restaurant',
+        per_page: 50,
+        page: 1
+      }
+    })
+    const photos = data.photos
+
     await queryInterface.bulkInsert('Restaurants',
-      Array.from({ length: 50 }, () => ({
-        name: faker.name.findName(),
+      Array.from({ length: 50 }, (_, i) => ({
+        name: faker.company.companyName(),
         tel: faker.phone.phoneNumber(),
         address: faker.address.streetAddress(),
         opening_hours: '08:00',
-        image: `https://loremflickr.com/320/240/restaurant,food/?random=${Math.random() * 100}`,
+        image: photos[i]?.src?.medium || '',
         description: faker.lorem.text(),
         created_at: new Date(),
         updated_at: new Date(),

@@ -1,9 +1,10 @@
 const { Restaurant, Category, User, Comment } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
 
+const DEFAULT_DESCRIPTION_LENGTH = 50
+
 const restaurantServices = {
   getRestaurants: (req, cb) => {
-    const DEFAULT_DESCRIPTION_LENGTH = 50
     const DEFAULT_LIMIT = 9
 
     const categoryId = Number(req.query.categoryId) || ''
@@ -124,9 +125,8 @@ const restaurantServices = {
           favoritedCount: r.FavoritedUsers.length,
           isFavorited: req.user && req.user.FavoritedRestaurants.map(fr => fr.id).includes(r.id)
         }))
-
-        restaurants.sort((a, b) => b.favoritedCount - a.favoritedCount)
-        restaurants = restaurants.slice(0, 10)
+          .sort((a, b) => b.favoritedCount - a.favoritedCount)
+          .slice(0, 10)
 
         return cb(null, { restaurants })
       })
